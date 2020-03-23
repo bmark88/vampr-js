@@ -25,7 +25,7 @@ class Vampire {
     let numberOfVampires = 0;
     let currentVampire = this;
 
-    while(currentVampire.creator) {
+    while (currentVampire.creator) {
       currentVampire = currentVampire.creator;
       numberOfVampires++;
     }
@@ -42,18 +42,47 @@ class Vampire {
 
   // Returns the vampire object with that name, or null if no vampire exists with that name
   vampireWithName(name) {
-    
+
+
+    if (this.name === name) {
+      return this;
+    }
+
+    for (let offspring of this.offspring) {
+      if (offspring.vampireWithName(name)) {
+        return offspring.vampireWithName(name);
+      }
+    }
+
+    return null
   }
 
   // Returns the total number of vampires that exist
   get totalDescendents() {
-    
+    let count = this.offspring.length;
+
+    for (let offspring of this.offspring) {
+      count += offspring.totalDescendents;
+    }
+
+    return count;
   }
 
   // Returns an array of all the vampires that were converted after 1980
   get allMillennialVampires() {
-    
+    let millenials = [];
+
+    if (this.yearConverted > 1980) {
+      millenials.push(this);
+    }
+
+    for (let offspring of this.offspring) {
+      millenials = millenials.concat(offspring.allMillennialVampires);
+    }
+
+    return millenials;
   }
+
 
   /** Stretch **/
 
@@ -75,13 +104,14 @@ class Vampire {
       } else {
         return vampire;
       }
-    } if (this.isAncestorOf(vampire)) {
+    }
+    if (this.isAncestorOf(vampire)) {
       return this;
     } else {
       return this.creator.closestCommonAncestor(vampire);
     }
   }
-  
+
   isAncestorOf(vampire) {
     if (this === vampire) return true;
     let currentVampire = this;
@@ -92,28 +122,41 @@ class Vampire {
     } else {
       for (const child of currentVampire.offspring) {
         if (child.isAncestorOf(vampire)) {
-          return true;  
+          return true;
         }
       }
       return false;
     }
   }
+
+  // to go the opposite way up the tree, this helper function will need to be used
+  // isDescendantOf(vampire) {
+  //   if (this.name === vampire.name) {
+  //     // return vampire;
+  //     return true;
+  //   }
+
+  //   if (this.creator) {
+  //     return this.creator.isDescendantOf(vampire);
+  //   }
+
+  //   // return null;
+  //   return false;
+  // }
 }
 
 module.exports = Vampire;
 
 
 const original = new Vampire('original');
-const bart = new Vampire('bart'); 
-const ansel = new Vampire('ansel');  
-const elgort = new Vampire('elgort'); 
-const sarah = new Vampire('sarah');  
-const andrew = new Vampire('andrew'); 
+const bart = new Vampire('bart');
+const ansel = new Vampire('ansel');
+const elgort = new Vampire('elgort');
+const sarah = new Vampire('sarah');
+const andrew = new Vampire('andrew');
 
 original.addOffspring(bart);
 original.addOffspring(ansel);
 ansel.addOffspring(elgort);
 ansel.addOffspring(sarah);
 elgort.addOffspring(andrew);
-
-// console.log(andrew.closestCommonAncestor(sarah));
